@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeviceCare - نصائح البطارية</title>
+<style>
+body {font-family: Tahoma, Arial, sans-serif; background: #f4f7fb; color: #111; padding: 20px;}
+h1 {text-align: center; color: #2b6ced;}
+.card {background: #fff; padding: 16px; margin: 16px auto; max-width: 500px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);}
+p {margin: 8px 0;}
+.ok {color: green; font-weight: bold;}
+.warn {color: red; font-weight: bold;}
+</style>
+</head>
+<body>
+
+<h1>🔋 DeviceCare - نصائح للبطارية</h1>
+
+<div class="card">
+  <h2>معلومات جهازك</h2>
+  <p id="batteryInfo">جارٍ الفحص...</p>
+  <p id="ramInfo"></p>
+  <p id="browserInfo"></p>
+  <p id="advice"></p>
+</div>
+
+<script>
+(async function() {
+  const batteryInfo = document.getElementById('batteryInfo');
+  const ramInfo = document.getElementById('ramInfo');
+  const browserInfo = document.getElementById('browserInfo');
+  const advice = document.getElementById('advice');
+
+  // البطارية
+  if ('getBattery' in navigator) {
+    const b = await navigator.getBattery();
+    const level = Math.round(b.level * 100);
+    const charging = b.charging ? "🔌 موصول بالشاحن" : "⚡ غير موصول";
+    batteryInfo.textContent = نسبة البطارية: ${level}% — ${charging};
+
+    // نصائح حسب البطارية
+    if (!b.charging && level < 20) {
+      advice.textContent = "⚠️ بطاريتك منخفضة، اشحن الجهاز أو فعل وضع توفير الطاقة";
+      advice.className = "warn";
+    } else if (b.charging && level >= 90) {
+      advice.textContent = "ℹ️ البطارية مشحونة، فكر بفصل الشاحن لتقليل الضغط على البطارية";
+      advice.className = "ok";
+    } else {
+      advice.textContent = "✅ البطارية بحالة جيدة حالياً";
+      advice.className = "ok";
+    }
+
+    b.addEventListener('levelchange', ()=> location.reload());
+    b.addEventListener('chargingchange', ()=> location.reload());
+  } else {
+    batteryInfo.textContent = "⚠️ المتصفح لا يدعم قراءة البطارية";
+    advice.textContent = "";
+  }
+
+  // الرام (تقريبية)
+  if (navigator.deviceMemory) {
+    const ram = navigator.deviceMemory;
+    ramInfo.textContent = الرام التقريبية: ${ram} GB;
+  } else {
+    ramInfo.textContent = "الرام غير متاحة في هذا المتصفح";
+  }
+
+  // المتصفح ونظام التشغيل
+  const ua = navigator.userAgent;
+  browserInfo.textContent = المتصفح/نظام التشغيل: ${ua};
+})();
+</script>
+
+</body>
+</html>
